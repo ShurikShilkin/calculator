@@ -1,0 +1,2927 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Покерный калькулятор — Софт Шурика</title>
+    <style>
+        /* ============================================
+           RESET & BASE
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+        body {
+            background: #d1d5db;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 8px;
+            margin: 0;
+        }
+        .app-container {
+            max-width: 700px;
+            width: 100%;
+            background: #e8dff5;
+            border-radius: 32px;
+            padding: 14px 12px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ============================================
+           HEADER
+           ============================================ */
+        .header {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .header h1 {
+            color: #2d1b4e;
+            font-weight: 600;
+            font-size: 18px;
+            letter-spacing: 1px;
+        }
+        .header h1 .spade {
+            color: #2d1b4e;
+            font-size: 20px;
+        }
+        .header .sub-brand {
+            color: #5b4a7a;
+            font-size: 10px;
+            letter-spacing: 2px;
+            margin-top: 1px;
+            opacity: 0.8;
+            font-weight: 400;
+        }
+        .header .sub-brand span {
+            color: #fbbf24;
+            font-weight: 600;
+        }
+
+        /* ============================================
+           CARD SECTION
+           ============================================ */
+        .card-section {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(2px);
+        }
+        .card-section .title {
+            color: #3d2a5c;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-section .title .badge {
+            background: rgba(251, 191, 36, 0.15);
+            color: #92400e;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-size: 8px;
+            font-weight: 700;
+        }
+        .card-row {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .card-slot {
+            width: 40px;
+            height: 56px;
+            border-radius: 6px;
+            border: 2px solid #c4b5d4;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
+        }
+        .card-slot:hover {
+            border-color: #fbbf24;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.2);
+        }
+        .card-slot.selected {
+            border-color: #fbbf24;
+            background: #fef9e7;
+        }
+        .card-slot .placeholder {
+            font-size: 10px;
+            color: #9ca3af;
+            opacity: 0.6;
+        }
+        .card-slot .rank {
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1;
+        }
+        .card-slot .suit {
+            font-size: 16px;
+            line-height: 1;
+        }
+        .card-slot .suit-heart {
+            color: #dc2626 !important;
+        }
+        .card-slot .suit-diamond {
+            color: #2563eb !important;
+        }
+        .card-slot .suit-spade {
+            color: #1f2937 !important;
+        }
+        .card-slot .suit-club {
+            color: #16a34a !important;
+        }
+        .card-slot.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* ============================================
+           BUTTONS
+           ============================================ */
+        .btn-group {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .btn-group .btn {
+            padding: 3px 6px;
+            border-radius: 5px;
+            font-size: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid transparent;
+            white-space: nowrap;
+            flex-shrink: 0;
+            line-height: 1.3;
+            min-height: 20px;
+            background: rgba(255, 255, 255, 0.5);
+            color: #4b3a6a;
+        }
+        .btn-group .btn:hover {
+            background: rgba(255, 255, 255, 0.8);
+        }
+        .btn-clear {
+            background: rgba(251, 191, 36, 0.12);
+            border-color: rgba(251, 191, 36, 0.2);
+            color: #92400e;
+        }
+        .btn-clear:hover {
+            background: rgba(251, 191, 36, 0.25);
+        }
+        .btn-add {
+            background: rgba(22, 163, 74, 0.12);
+            border-color: rgba(22, 163, 74, 0.2);
+            color: #166534;
+        }
+        .btn-add:hover {
+            background: rgba(22, 163, 74, 0.25);
+        }
+        .btn-random {
+            background: rgba(251, 191, 36, 0.10);
+            border-color: rgba(251, 191, 36, 0.15);
+            color: #92400e;
+        }
+        .btn-random:hover {
+            background: rgba(251, 191, 36, 0.25);
+        }
+        .btn-range {
+            background: rgba(139, 92, 246, 0.12);
+            border-color: rgba(139, 92, 246, 0.2);
+            color: #5b21b6;
+        }
+        .btn-range:hover {
+            background: rgba(139, 92, 246, 0.25);
+        }
+        .btn-range.active {
+            background: #8b5cf6;
+            color: #fff;
+            border-color: #8b5cf6;
+        }
+        .btn-blocker {
+            background: rgba(220, 38, 38, 0.08);
+            border-color: rgba(220, 38, 38, 0.2);
+            color: #991b1b;
+        }
+        .btn-blocker:hover {
+            background: rgba(220, 38, 38, 0.15);
+        }
+        .btn-blocker.active {
+            background: #dc2626;
+            color: #fff;
+            border-color: #dc2626;
+        }
+        .btn-filter-include {
+            background: rgba(22, 163, 74, 0.08);
+            border-color: rgba(22, 163, 74, 0.2);
+            color: #166534;
+        }
+        .btn-filter-include:hover {
+            background: rgba(22, 163, 74, 0.15);
+        }
+        .btn-filter-include.active {
+            background: #16a34a;
+            color: #fff;
+            border-color: #16a34a;
+        }
+        .btn-sm {
+            padding: 2px 5px;
+            font-size: 7px;
+            min-height: 18px;
+        }
+
+        /* ============================================
+           RESULT SECTION
+           ============================================ */
+        .result-section {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .result-section .label {
+            color: #4b3a6a;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+        }
+        .result-section .value {
+            color: #2d1b4e;
+            font-size: 26px;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+        .result-section .value .highlight {
+            color: #fbbf24;
+        }
+        .result-section .sub {
+            color: #4b3a6a;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .info-item {
+            background: rgba(0, 0, 0, 0.04);
+            border-radius: 6px;
+            padding: 6px;
+            text-align: center;
+        }
+        .info-item .label {
+            color: #4b3a6a;
+            font-size: 7px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+        }
+        .info-item .value {
+            color: #2d1b4e;
+            font-size: 16px;
+            font-weight: 700;
+            margin-top: 1px;
+        }
+        .info-item .value .win {
+            color: #16a34a;
+        }
+        .info-item .value .lose {
+            color: #dc2626;
+        }
+        .info-item .value .tie {
+            color: #f59e0b;
+        }
+
+        .calc-btn {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #2d1b4e;
+            cursor: pointer;
+            transition: 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .calc-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 30px rgba(251, 191, 36, 0.3);
+        }
+        .calc-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* ============================================
+           BANK SECTION
+           ============================================ */
+        .bank-section {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 10px;
+        }
+        .bank-section .label {
+            color: #4b3a6a;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .bank-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+        .bank-row .field {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+        .bank-row .field label {
+            color: #4b3a6a;
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        .bank-row .field input {
+            width: 64px;
+            padding: 4px 6px;
+            border-radius: 5px;
+            border: 1px solid #c4b5d4;
+            background: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            color: #2d1b4e;
+        }
+        .bank-row .field input:focus {
+            outline: none;
+            border-color: #fbbf24;
+            box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
+        }
+
+        .odds-result {
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.04);
+            border-radius: 6px;
+            text-align: center;
+        }
+        .odds-result .big {
+            font-size: 22px;
+            font-weight: 700;
+        }
+        .odds-result .big .green {
+            color: #16a34a;
+        }
+        .odds-result .big .red {
+            color: #dc2626;
+        }
+        .odds-result .big .yellow {
+            color: #f59e0b;
+        }
+        .odds-result .sub {
+            font-size: 11px;
+            color: #4b3a6a;
+            margin-top: 3px;
+        }
+        .odds-result .sub strong {
+            color: #2d1b4e;
+        }
+
+        /* ============================================
+           OUTS
+           ============================================ */
+        .outs-category {
+            margin-top: 4px;
+            text-align: left;
+            padding: 3px 6px;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.04);
+            border-left: 3px solid #16a34a;
+            font-size: 10px;
+        }
+        .outs-category .cat-label {
+            color: #4b3a6a;
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            display: block;
+        }
+        .outs-category .cat-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            margin-top: 2px;
+        }
+        .outs-category .cat-cards .card-mini {
+            background: #ffffff;
+            border: 1px solid #c4b5d4;
+            border-radius: 3px;
+            padding: 1px 4px;
+            font-size: 10px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .outs-category.quality-tie {
+            border-left-color: #f59e0b !important;
+        }
+        .outs-category.quality-tie .cat-label {
+            color: #92400e;
+        }
+        .outs-category.villain-outs {
+            border-left-color: #dc2626 !important;
+        }
+        .outs-category.villain-outs .cat-label {
+            color: #991b1b;
+        }
+
+        .tip-box {
+            background: rgba(251, 191, 36, 0.08);
+            border-left: 3px solid #fbbf24;
+            border-radius: 6px;
+            padding: 8px 10px;
+            color: #2d1b4e;
+            font-size: 11px;
+            line-height: 1.4;
+            margin-top: 8px;
+            text-align: left;
+            transition: border-color 0.3s;
+        }
+        .tip-box strong {
+            color: #92400e;
+        }
+
+        .mode-indicator {
+            color: #4b3a6a;
+            font-size: 10px;
+            text-align: center;
+            padding: 4px;
+            background: rgba(0, 0, 0, 0.04);
+            border-radius: 4px;
+            margin-top: 4px;
+            transition: all 0.3s;
+        }
+        .mode-indicator .mode-icon {
+            font-weight: 700;
+        }
+
+        .bet-type-selector {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .bet-type-selector button {
+            padding: 4px 10px;
+            border: 2px solid #c4b5d4;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.4);
+            color: #4b3a6a;
+            font-weight: 600;
+            font-size: 9px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+        }
+        .bet-type-selector button:hover {
+            background: rgba(255, 255, 255, 0.7);
+        }
+        .bet-type-selector button.active {
+            background: #8b5cf6;
+            border-color: #8b5cf6;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+        .bet-type-selector button.active .hint {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .bet-type-selector button .hint {
+            display: block;
+            font-size: 7px;
+            font-weight: 400;
+            opacity: 0.7;
+            margin-top: 1px;
+        }
+        .bet-type-selector button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .range-status {
+            margin-top: 4px;
+            font-size: 10px;
+            color: #5b4a7a;
+            text-align: center;
+            display: none;
+            padding: 3px 6px;
+            background: rgba(139, 92, 246, 0.08);
+            border-radius: 4px;
+        }
+        .range-status.active {
+            display: block;
+        }
+        .range-status strong {
+            color: #5b21b6;
+        }
+
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            margin-top: 4px;
+            justify-content: center;
+        }
+        .filter-tag {
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            color: #fff;
+        }
+        .filter-tag.blocker-tag {
+            background: #dc2626;
+        }
+        .filter-tag.include-tag {
+            background: #16a34a;
+        }
+        .filter-tag .remove {
+            cursor: pointer;
+            font-size: 10px;
+            opacity: 0.7;
+        }
+        .filter-tag .remove:hover {
+            opacity: 1;
+        }
+
+        /* ============================================
+           OVERLAYS
+           ============================================ */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .overlay.active {
+            display: flex;
+        }
+        .overlay-panel {
+            background: #f5f0fa;
+            border-radius: 16px;
+            padding: 16px 12px;
+            max-width: 540px;
+            width: 96%;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+            max-height: 92vh;
+            overflow-y: auto;
+        }
+        .overlay-panel h3 {
+            color: #2d1b4e;
+            font-weight: 600;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 3px;
+        }
+        .overlay-panel .subtitle {
+            color: #5b4a7a;
+            font-size: 10px;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        /* Card Picker */
+        .card-picker {
+            max-width: 400px;
+        }
+        .picker-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+        }
+        .picker-card {
+            padding: 5px 3px;
+            background: #ffffff;
+            border: 1px solid #c4b5d4;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 11px;
+            font-weight: 600;
+            color: #2d1b4e;
+        }
+        .picker-card:hover {
+            background: #fef9e7;
+            border-color: #fbbf24;
+            color: #92400e;
+        }
+        .picker-card .rank {
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .picker-card .suit {
+            font-size: 13px;
+        }
+        .picker-card .suit-heart {
+            color: #dc2626 !important;
+        }
+        .picker-card .suit-diamond {
+            color: #2563eb !important;
+        }
+        .picker-card .suit-spade {
+            color: #1f2937 !important;
+        }
+        .picker-card .suit-club {
+            color: #16a34a !important;
+        }
+        .picker-close {
+            width: 100%;
+            padding: 8px;
+            margin-top: 8px;
+            background: rgba(0, 0, 0, 0.05);
+            border: none;
+            border-radius: 5px;
+            color: #4b3a6a;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .picker-close:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Range Picker - МОБИЛЬНАЯ ВЕРСИЯ */
+        .range-slider-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            padding: 6px 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 6px;
+        }
+        .range-slider-row label {
+            color: #2d1b4e;
+            font-weight: 600;
+            font-size: 11px;
+            white-space: nowrap;
+            min-width: 50px;
+        }
+        .range-slider-row input[type="range"] {
+            flex: 1;
+            accent-color: #8b5cf6;
+            height: 5px;
+            cursor: pointer;
+        }
+        .range-slider-row .range-value {
+            color: #2d1b4e;
+            font-weight: 700;
+            font-size: 13px;
+            min-width: 40px;
+            text-align: right;
+        }
+        .range-table-wrap {
+            overflow-x: auto;
+            margin-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .range-table {
+            border-collapse: collapse;
+            margin: 0 auto;
+            font-size: 10px;
+            background: #ffffff;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        .range-table th,
+        .range-table td {
+            padding: 2px 3px;
+            text-align: center;
+            min-width: 20px;
+            font-weight: 600;
+            border: 1px solid #e5d9f0;
+            font-size: 9px;
+        }
+        .range-table th {
+            background: #e8dff5;
+            color: #2d1b4e;
+            font-size: 8px;
+            padding: 2px 2px;
+        }
+        .range-table .corner {
+            background: #e8dff5;
+            font-size: 7px;
+            color: #5b4a7a;
+            min-width: 14px;
+        }
+        .range-table .cell {
+            cursor: pointer;
+            transition: 0.15s;
+            border-radius: 2px;
+            user-select: none;
+            font-weight: 600;
+            color: #2d1b4e;
+            padding: 2px 3px;
+            min-width: 20px;
+            position: relative;
+            font-size: 8px;
+        }
+        .range-table .cell:hover {
+            background: #fef9e7;
+            transform: scale(1.05);
+            z-index: 2;
+        }
+        .range-table .cell.pair {
+            background: #f3e8ff;
+        }
+        .range-table .cell.suited {
+            background: #e0f7fa;
+        }
+        .range-table .cell.offsuit {
+            background: #fce4ec;
+        }
+        .range-table .cell.in-range {
+            background: #8b5cf6 !important;
+            color: #fff !important;
+            border-color: #7c3aed;
+            box-shadow: 0 0 6px rgba(139, 92, 246, 0.25);
+        }
+        .range-table .cell.in-range.pair {
+            background: #7c3aed !important;
+        }
+        .range-table .cell.in-range.suited {
+            background: #6d28d9 !important;
+        }
+        .range-table .cell.in-range.offsuit {
+            background: #5b21b6 !important;
+        }
+        .range-table .cell.in-range::after {
+            content: " ✓";
+            font-size: 6px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .range-table .cell.blocked {
+            opacity: 0.2 !important;
+            cursor: not-allowed !important;
+            text-decoration: line-through;
+        }
+        .range-table .cell.blocked::after {
+            content: " ✕";
+            font-size: 6px;
+            color: #dc2626;
+        }
+        .range-table .cell.blocked:hover {
+            transform: none !important;
+            background: inherit !important;
+        }
+        .range-table .cell.filtered-include {
+            opacity: 0.3 !important;
+            cursor: not-allowed !important;
+        }
+        .range-table .cell.filtered-include::after {
+            content: " ✕";
+            font-size: 6px;
+            color: #16a34a;
+        }
+        .range-table .cell.filtered-include:hover {
+            transform: none !important;
+            background: inherit !important;
+        }
+
+        .range-info {
+            text-align: center;
+            font-size: 10px;
+            color: #5b4a7a;
+            margin-bottom: 8px;
+        }
+        .range-info strong {
+            color: #2d1b4e;
+        }
+        .range-actions {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+        .range-actions button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 11px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .range-actions .btn-apply {
+            background: #8b5cf6;
+            color: #fff;
+        }
+        .range-actions .btn-apply:hover {
+            background: #7c3aed;
+            transform: scale(1.02);
+        }
+        .range-actions .btn-cancel {
+            background: rgba(0, 0, 0, 0.05);
+            color: #4b3a6a;
+        }
+        .range-actions .btn-cancel:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        .range-actions .btn-reset {
+            background: rgba(220, 38, 38, 0.08);
+            color: #991b1b;
+        }
+        .range-actions .btn-reset:hover {
+            background: rgba(220, 38, 38, 0.15);
+        }
+        .range-presets {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 6px;
+        }
+        .range-presets button {
+            padding: 2px 8px;
+            border: 1px solid #c4b5d4;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.4);
+            color: #4b3a6a;
+            font-size: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .range-presets button:hover {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: #8b5cf6;
+        }
+        .range-presets button.active {
+            background: #8b5cf6;
+            color: #fff;
+            border-color: #8b5cf6;
+        }
+        .range-desc {
+            font-size: 9px;
+            color: #5b4a7a;
+            text-align: center;
+            margin-top: 3px;
+            padding: 3px 6px;
+            background: rgba(0, 0, 0, 0.04);
+            border-radius: 4px;
+            min-height: 16px;
+        }
+
+        /* Filter Picker */
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+        .filter-btn {
+            padding: 6px 3px;
+            background: #ffffff;
+            border: 2px solid #c4b5d4;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 14px;
+            font-weight: 700;
+            color: #2d1b4e;
+        }
+        .filter-btn:hover {
+            background: #fef9e7;
+            border-color: #fbbf24;
+        }
+        .filter-btn.active {
+            background: #16a34a;
+            border-color: #16a34a;
+            color: #fff;
+        }
+        .filter-btn.active-blocker {
+            background: #dc2626;
+            border-color: #dc2626;
+            color: #fff;
+        }
+        .filter-actions {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+        .filter-actions button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 11px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .filter-actions .btn-apply-filter {
+            background: #16a34a;
+            color: #fff;
+        }
+        .filter-actions .btn-apply-filter:hover {
+            background: #15803d;
+            transform: scale(1.02);
+        }
+        .filter-actions .btn-cancel-filter {
+            background: rgba(0, 0, 0, 0.05);
+            color: #4b3a6a;
+        }
+        .filter-actions .btn-cancel-filter:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        .filter-actions .btn-clear-filter {
+            background: rgba(220, 38, 38, 0.08);
+            color: #991b1b;
+        }
+        .filter-actions .btn-clear-filter:hover {
+            background: rgba(220, 38, 38, 0.15);
+        }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 480px) {
+            .card-slot {
+                width: 34px;
+                height: 46px;
+            }
+            .card-slot .rank {
+                font-size: 13px;
+            }
+            .card-slot .suit {
+                font-size: 13px;
+            }
+            .card-slot .placeholder {
+                font-size: 8px;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 16px;
+            }
+            .info-item .value {
+                font-size: 14px;
+            }
+            .bank-row .field input {
+                width: 54px;
+                font-size: 11px;
+            }
+            .odds-result .big {
+                font-size: 18px;
+            }
+            .bet-type-selector button {
+                font-size: 8px;
+                padding: 3px 8px;
+            }
+            .bet-type-selector button .hint {
+                font-size: 6px;
+            }
+            .range-table {
+                font-size: 8px;
+            }
+            .range-table th,
+            .range-table td {
+                padding: 1px 2px;
+                min-width: 16px;
+                font-size: 7px;
+            }
+            .range-table .cell {
+                font-size: 7px;
+                padding: 1px 2px;
+                min-width: 16px;
+            }
+            .overlay-panel {
+                padding: 10px 8px;
+            }
+            .filter-btn {
+                font-size: 12px;
+                padding: 4px 2px;
+            }
+            .btn-group .btn {
+                font-size: 7px;
+                padding: 2px 4px;
+                min-height: 16px;
+            }
+            .btn-group .btn-sm {
+                font-size: 6px;
+                padding: 1px 3px;
+                min-height: 14px;
+            }
+            .result-section .value {
+                font-size: 22px;
+            }
+            .range-presets button {
+                font-size: 7px;
+                padding: 1px 6px;
+            }
+            .range-slider-row label {
+                font-size: 10px;
+                min-width: 40px;
+            }
+            .range-slider-row .range-value {
+                font-size: 11px;
+                min-width: 32px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .card-slot {
+                width: 28px;
+                height: 40px;
+            }
+            .card-slot .rank {
+                font-size: 11px;
+            }
+            .card-slot .suit {
+                font-size: 11px;
+            }
+            .card-slot .placeholder {
+                font-size: 7px;
+            }
+            .btn-group .btn {
+                font-size: 6px;
+                padding: 1px 3px;
+                min-height: 14px;
+            }
+            .range-table th,
+            .range-table td {
+                padding: 1px 1px;
+                min-width: 14px;
+                font-size: 6px;
+            }
+            .range-table .cell {
+                font-size: 6px;
+                padding: 1px 1px;
+                min-width: 14px;
+            }
+            .filter-btn {
+                font-size: 10px;
+                padding: 3px 1px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container" id="app">
+        <!-- HEADER -->
+        <div class="header">
+            <h1><span class="spade">♠</span> Покерный калькулятор</h1>
+            <div class="sub-brand">Софт <span>Шурика</span></div>
+        </div>
+
+        <!-- HERO CARDS -->
+        <div class="card-section">
+            <div class="title"><span>🃏 Твои карты</span><span class="badge">2 карты</span></div>
+            <div class="card-row" id="heroCards">
+                <div class="card-slot" data-slot="hero-0" onclick="openPicker('hero-0')"><span class="placeholder">?</span></div>
+                <div class="card-slot" data-slot="hero-1" onclick="openPicker('hero-1')"><span class="placeholder">?</span></div>
+                <div class="btn-group">
+                    <button class="btn btn-clear" onclick="clearHeroCards()">✕ Очистить</button>
+                    <button class="btn btn-add" onclick="setRandomHero()">🎲 Случайная</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- VILLAIN CARDS -->
+        <div class="card-section">
+            <div class="title"><span>🎯 Карты соперника</span><span class="badge" id="villainBadge">2 карты</span></div>
+            <div class="card-row" id="villainCards">
+                <div class="card-slot" data-slot="villain-0" onclick="openPicker('villain-0')"><span class="placeholder">?</span></div>
+                <div class="card-slot" data-slot="villain-1" onclick="openPicker('villain-1')"><span class="placeholder">?</span></div>
+                <div class="btn-group">
+                    <button class="btn btn-clear" onclick="clearVillainCards()">✕ Очистить</button>
+                    <button class="btn btn-add" onclick="setRandomVillain()">🎲 Случайная</button>
+                    <button class="btn btn-range" id="rangeBtn" onclick="openRangePicker()">📊 Диапазон</button>
+                    <button class="btn btn-blocker" id="blockerBtn" onclick="openBlockerPicker()">🚫 Блокер</button>
+                    <button class="btn btn-filter-include" id="filterBtn" onclick="openFilterPicker()">🎯 Только с ...</button>
+                </div>
+            </div>
+            <div class="range-status" id="rangeStatus">
+                🎯 Диапазон: <strong id="rangeStatusText">0</strong> рук
+                <span id="filterStatus" style="display:none; margin-left:6px;"></span>
+            </div>
+            <div id="filterTags" class="filter-tags"></div>
+        </div>
+
+        <!-- BOARD -->
+        <div class="card-section" id="boardSection">
+            <div class="title"><span>📊 Стол (флоп, терн, ривер)</span><span class="badge" id="boardBadge">до 5 карт</span></div>
+            <div class="card-row" id="boardCards">
+                <div class="card-slot" data-slot="board-0" onclick="openPicker('board-0')"><span class="placeholder">?</span></div>
+                <div class="card-slot" data-slot="board-1" onclick="openPicker('board-1')"><span class="placeholder">?</span></div>
+                <div class="card-slot" data-slot="board-2" onclick="openPicker('board-2')"><span class="placeholder">?</span></div>
+                <div class="card-slot" data-slot="board-3" onclick="openPicker('board-3')"><span class="placeholder">?</span></div>
+                <div class="card-slot" data-slot="board-4" onclick="openPicker('board-4')"><span class="placeholder">?</span></div>
+                <div class="btn-group">
+                    <button class="btn btn-clear" onclick="clearBoardCards()">✕ Очистить</button>
+                </div>
+            </div>
+            <div style="display:flex; gap:4px; margin-top:6px; flex-wrap:wrap;">
+                <button class="btn btn-random btn-sm" onclick="setBoardFlop()">🎲 Флоп (3)</button>
+                <button class="btn btn-random btn-sm" onclick="setBoardTurn()">🎲 Терн (+1)</button>
+                <button class="btn btn-random btn-sm" onclick="setBoardRiver()">🎲 Ривер (+1)</button>
+            </div>
+            <div class="mode-indicator" id="modeIndicator">
+                🔄 <span class="mode-icon">Неизвестный борд</span> — симуляция всех возможных карт стола
+            </div>
+
+            <div class="bet-type-selector" id="betTypeSelector">
+                <button id="betTypeAllin" class="active" onclick="setBetType('allin')">
+                    🎯 All-in
+                    <span class="hint">×4</span>
+                </button>
+                <button id="betTypeNormal" onclick="setBetType('normal')">
+                    📊 Обычная
+                    <span class="hint">×2</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- BANK -->
+        <div class="bank-section">
+            <div class="label">💰 Шансы банка</div>
+            <div class="bank-row">
+                <div class="field">
+                    <label>Банк</label>
+                    <input type="number" id="potSize" value="100" min="0" step="1" />
+                </div>
+                <div class="field">
+                    <label>Ставка</label>
+                    <input type="number" id="betSize" value="50" min="0" step="1" />
+                </div>
+            </div>
+            <div class="odds-result" id="potOddsResult">
+                <div class="big">Шансы банка: <span class="yellow" id="potOddsPercent">—</span>%</div>
+                <div class="sub">
+                    Требуется: <strong id="requiredEquity">—</strong>% для колла
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTS -->
+        <div class="result-section">
+            <div class="label">Результат</div>
+            <div class="info-grid">
+                <div class="info-item"><div class="label">Победа</div><div class="value"><span class="win" id="winEquity">—</span>%</div></div>
+                <div class="info-item"><div class="label">Ничья</div><div class="value"><span class="tie" id="tieEquity">—</span>%</div></div>
+                <div class="info-item"><div class="label">Поражение</div><div class="value"><span class="lose" id="loseEquity">—</span>%</div></div>
+            </div>
+
+            <div class="info-grid" style="margin-top: 4px;">
+                <div class="info-item"><div class="label">Твоя комбинация</div><div class="value" id="heroHandName" style="font-size:11px;">—</div></div>
+                <div class="info-item"><div class="label">Комбинация соперника</div><div class="value" id="villainHandName" style="font-size:11px;">—</div></div>
+            </div>
+
+            <div id="outsContainer" style="display:none; margin-top: 6px;">
+                <div class="label" id="outsLabel" style="margin-top:6px; font-size:9px; color:#4b3a6a; text-transform:uppercase; font-weight:700;">Твои ауты</div>
+                <div id="outsCategories"></div>
+                <div id="outsInfo" style="margin-top:4px; font-size:10px; color:#4b3a6a;"></div>
+                <div id="betSizeAdvice" style="margin-top:6px; padding:6px; background:rgba(251,191,36,0.12); border-radius:4px; font-size:11px; color:#2d1b4e;"></div>
+            </div>
+
+            <div class="tip-box" id="resultTip">💡 <strong>Подсказка:</strong> Выбери карты Hero и Villain, затем нажми "Рассчитать".</div>
+
+            <button class="calc-btn" onclick="calculateAll()">🧠 Рассчитать шансы</button>
+        </div>
+    </div>
+
+    <!-- ============================================
+    OVERLAYS
+    ============================================ -->
+
+    <!-- Card Picker -->
+    <div class="overlay" id="pickerOverlay">
+        <div class="overlay-panel card-picker">
+            <h3 id="pickerTitle">Выбери карту</h3>
+            <div class="picker-grid" id="pickerGrid"></div>
+            <button class="picker-close" onclick="closePicker()">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Range Picker -->
+    <div class="overlay" id="rangeOverlay">
+        <div class="overlay-panel">
+            <h3>📊 Выбор диапазона</h3>
+            <div class="subtitle">Бегунок / Клик по ячейке</div>
+
+            <div class="range-slider-row">
+                <label>Диапазон:</label>
+                <input type="range" id="rangeSlider" min="0" max="100" value="0" step="0.5" />
+                <span class="range-value" id="rangeSliderValue">0%</span>
+            </div>
+
+            <div class="range-presets">
+                <button onclick="setRangePreset(5)">5%</button>
+                <button onclick="setRangePreset(10)">10%</button>
+                <button onclick="setRangePreset(16)">16%</button>
+                <button onclick="setRangePreset(25)">25%</button>
+                <button onclick="setRangePreset(50)">50%</button>
+            </div>
+
+            <div class="range-desc" id="rangeDesc">Выбери процент диапазона</div>
+
+            <div class="range-info">
+                Выбрано: <strong id="rangeCountDisplay">0</strong> рук
+            </div>
+
+            <div class="range-table-wrap">
+                <table class="range-table" id="rangeTable"></table>
+            </div>
+
+            <div class="range-actions">
+                <button class="btn-apply" onclick="applyRange()">✅ Применить</button>
+                <button class="btn-cancel" onclick="closeRangePicker()">✕ Отмена</button>
+                <button class="btn-reset" onclick="resetRange()">⟲ Сбросить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blocker Picker -->
+    <div class="overlay" id="blockerOverlay">
+        <div class="overlay-panel">
+            <h3>🚫 Блокер</h3>
+            <div class="subtitle">Выбери ранги, которых НЕТ у соперника</div>
+            <div class="filter-grid" id="blockerGrid"></div>
+            <div class="filter-actions">
+                <button class="btn-apply-filter" onclick="applyBlockers()">✅ Применить</button>
+                <button class="btn-cancel-filter" onclick="closeBlockerPicker()">✕ Отмена</button>
+                <button class="btn-clear-filter" onclick="clearBlockers()">⟲ Очистить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Include Picker -->
+    <div class="overlay" id="filterOverlay">
+        <div class="overlay-panel">
+            <h3>🎯 Только с ...</h3>
+            <div class="subtitle">Выбери ранги, которые точно ЕСТЬ у соперника</div>
+            <div class="filter-grid" id="filterGrid"></div>
+            <div class="filter-actions">
+                <button class="btn-apply-filter" onclick="applyFilters()">✅ Применить</button>
+                <button class="btn-cancel-filter" onclick="closeFilterPicker()">✕ Отмена</button>
+                <button class="btn-clear-filter" onclick="clearFilters()">⟲ Очистить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // ПОЛНЫЙ JS КОД (сокращён для мобильной версии)
+        // ============================================
+
+        const RANKS = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
+        const SUITS = ['♠', '♥', '♦', '♣'];
+        const RANK_VALUES = { 'A': 14, 'K': 13, 'Q': 12, 'J': 11, 'T': 10, '9': 9, '8': 8, '7': 7, '6': 6, '5': 5, '4': 4, '3': 3, '2': 2 };
+        const RANK_ORDER = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
+
+        let state = {
+            hero: [null, null],
+            villain: [null, null],
+            board: [null, null, null, null, null],
+            selectedSlot: null,
+            betType: 'allin',
+            rangeMode: false,
+            rangeHands: new Set(),
+            blockers: [],
+            filters: []
+        };
+
+        function getAllHands() {
+            const hands = [];
+            for (let i = 0; i < RANK_ORDER.length; i++) {
+                for (let j = 0; j < RANK_ORDER.length; j++) {
+                    const r1 = RANK_ORDER[i];
+                    const r2 = RANK_ORDER[j];
+                    if (i === j) {
+                        hands.push({ key: r1 + r2, rank1: r1, rank2: r2, type: 'pair', display: r1 + r2 });
+                    } else if (i < j) {
+                        hands.push({ key: r1 + r2 + 's', rank1: r1, rank2: r2, type: 'suited', display: r1 + r2 + 's' });
+                        hands.push({ key: r1 + r2 + 'o', rank1: r1, rank2: r2, type: 'offsuit', display: r1 + r2 + 'o' });
+                    }
+                }
+            }
+            return hands;
+        }
+
+        const ALL_HANDS = getAllHands();
+
+        const GTO_HAND_ORDER = [
+            'AA', 'KK', 'QQ', 'JJ', 'TT', '99', '88',
+            'AKs', 'AQs', 'AJs', 'ATs', 'AKo',
+            '77', '66', 'AQo', 'KQs', 'KJs', 'A9s', 'A8s', 'A7s',
+            '55', '44', 'AJo', 'KQo', 'KTs', 'QJs', 'JTs', 'ATo', 'A6s', 'A5s', 'A4s', 'A3s', 'A2s',
+            '33', '22', 'KJo', 'QTs', 'J9s', 'T9s', '98s', '87s', '76s', '65s', '54s', 'K9s', 'Q9s',
+            'A9o', 'A8o', 'A7o', 'A6o', 'A5o', 'A4o', 'A3o', 'A2o',
+            'KTo', 'QTo', 'JTo', 'T8s', '97s', '86s', '75s', '64s', '53s', '42s', '32s',
+            'QJo',
+            'K8s', 'K7s', 'K6s', 'K5s', 'K4s', 'K3s', 'K2s',
+            'Q8s', 'Q7s', 'Q6s', 'Q5s', 'Q4s', 'Q3s', 'Q2s',
+            'J8s', 'J7s', 'J6s', 'J5s', 'J4s', 'J3s', 'J2s',
+            'T7s', 'T6s', 'T5s', 'T4s', 'T3s', 'T2s',
+            '96s', '95s', '94s', '93s', '92s',
+            '85s', '84s', '83s', '82s',
+            '74s', '73s', '72s',
+            '63s', '62s',
+            '52s',
+            'K9o', 'Q9o', 'J9o', 'T9o', '98o', '87o', '76o', '65o', '54o',
+            'K8o', 'K7o', 'K6o', 'K5o', 'K4o', 'K3o', 'K2o',
+            'Q8o', 'Q7o', 'Q6o', 'Q5o', 'Q4o', 'Q3o', 'Q2o',
+            'J8o', 'J7o', 'J6o', 'J5o', 'J4o', 'J3o', 'J2o',
+            'T8o', 'T7o', 'T6o', 'T5o', 'T4o', 'T3o', 'T2o',
+            '97o', '96o', '95o', '94o', '93o', '92o',
+            '86o', '85o', '84o', '83o', '82o',
+            '75o', '74o', '73o', '72o',
+            '64o', '63o', '62o',
+            '53o', '52o', '42o', '32o'
+        ];
+
+        function getRankName(v) { for (let [n, val] of Object.entries(RANK_VALUES)) { if (val === v) return n; } return String(v); }
+
+        function getRankValue(r) { return RANK_VALUES[r] || 0; }
+
+        function getCard(rank, suit) {
+            return { rank, suit };
+        }
+
+        // ============================================
+        // РЕНДЕРИНГ КАРТ
+        // ============================================
+
+        function renderCard(slotId) {
+            const parts = slotId.split('-');
+            const type = parts[0],
+                index = parseInt(parts[1]);
+            let card = null;
+            if (type === 'hero') card = state.hero[index];
+            else if (type === 'villain') card = state.villain[index];
+            else if (type === 'board') card = state.board[index];
+            const el = document.querySelector(`[data-slot="${slotId}"]`);
+            if (!el) return;
+            if (card) {
+                let colorClass = '';
+                if (card.suit === '♥') colorClass = 'suit-heart';
+                else if (card.suit === '♦') colorClass = 'suit-diamond';
+                else if (card.suit === '♣') colorClass = 'suit-club';
+                else colorClass = 'suit-spade';
+                el.innerHTML = `<span class="rank ${colorClass}">${card.rank}</span><span class="suit ${colorClass}">${card.suit}</span>`;
+                el.classList.add('selected');
+                el.classList.remove('disabled');
+            } else {
+                el.innerHTML = `<span class="placeholder">?</span>`;
+                el.classList.remove('selected');
+                if (type === 'villain' && state.rangeMode) {
+                    el.classList.add('disabled');
+                } else {
+                    el.classList.remove('disabled');
+                }
+            }
+        }
+
+        function renderAllCards() {
+            for (let i = 0; i < 2; i++) renderCard(`hero-${i}`);
+            for (let i = 0; i < 2; i++) renderCard(`villain-${i}`);
+            for (let i = 0; i < 5; i++) renderCard(`board-${i}`);
+
+            const badge = document.getElementById('villainBadge');
+            if (state.rangeMode && state.rangeHands.size > 0) {
+                const filtered = getFilteredRange();
+                badge.textContent = `📊 ${filtered.size} рук (из ${state.rangeHands.size})`;
+            } else {
+                badge.textContent = '2 карты';
+            }
+
+            renderFilterTags();
+        }
+
+        // ============================================
+        // ФИЛЬТРАЦИЯ — ТОЛЬКО ПО ТОМУ, ЧТО ВЫБРАЛ ПОЛЬЗОВАТЕЛЬ
+        // ============================================
+
+        function getFilteredRange() {
+            if (!state.rangeMode || state.rangeHands.size === 0) return new Set();
+
+            const filtered = new Set();
+
+            for (let key of state.rangeHands) {
+                const hand = ALL_HANDS.find(h => h.key === key);
+                if (!hand) continue;
+
+                let isBlocked = false;
+                for (let r of state.blockers) {
+                    if (r === hand.rank1 || r === hand.rank2) {
+                        isBlocked = true;
+                        break;
+                    }
+                }
+                if (isBlocked) continue;
+
+                if (state.filters.length > 0) {
+                    let hasFilter = false;
+                    for (let r of state.filters) {
+                        if (r === hand.rank1 || r === hand.rank2) {
+                            hasFilter = true;
+                            break;
+                        }
+                    }
+                    if (!hasFilter) continue;
+                }
+
+                filtered.add(key);
+            }
+
+            return filtered;
+        }
+
+        // ============================================
+        // OVERLAY HELPERS
+        // ============================================
+
+        function openOverlay(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeOverlay(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // ============================================
+        // CARD PICKER
+        // ============================================
+
+        function openPicker(slotId) {
+            if (slotId.startsWith('villain') && state.rangeMode) {
+                alert('В режиме диапазона нельзя выбрать конкретные карты.');
+                return;
+            }
+
+            state.selectedSlot = slotId;
+            const parts = slotId.split('-');
+            const type = parts[0],
+                index = parseInt(parts[1]);
+            const usedCards = new Set();
+            for (let c of state.hero) { if (c) usedCards.add(c.rank + c.suit); }
+            for (let c of state.villain) { if (c) usedCards.add(c.rank + c.suit); }
+            for (let c of state.board) { if (c) usedCards.add(c.rank + c.suit); }
+            if (type === 'hero' && state.hero[index]) usedCards.delete(state.hero[index].rank + state.hero[index].suit);
+            else if (type === 'villain' && state.villain[index]) usedCards.delete(state.villain[index].rank + state
+                .villain[index].suit);
+            else if (type === 'board' && state.board[index]) usedCards.delete(state.board[index].rank + state.board[index]
+                .suit);
+
+            const overlay = document.getElementById('pickerOverlay');
+            const grid = document.getElementById('pickerGrid');
+            const title = document.getElementById('pickerTitle');
+            const labels = { 'hero': 'Твоя карта', 'villain': 'Карта соперника', 'board': 'Карта стола' };
+            title.textContent = `${labels[type] || 'Выбери карту'} ${index + 1}`;
+            grid.innerHTML = '';
+            for (let rank of RANKS) {
+                for (let suit of SUITS) {
+                    const key = rank + suit;
+                    const isUsed = usedCards.has(key);
+                    let colorClass = '';
+                    if (suit === '♥') colorClass = 'suit-heart';
+                    else if (suit === '♦') colorClass = 'suit-diamond';
+                    else if (suit === '♣') colorClass = 'suit-club';
+                    else colorClass = 'suit-spade';
+                    const div = document.createElement('div');
+                    div.className = 'picker-card';
+                    div.style.opacity = isUsed ? '0.2' : '1';
+                    div.style.cursor = isUsed ? 'not-allowed' : 'pointer';
+                    div.innerHTML = `<span class="rank ${colorClass}">${rank}</span><span class="suit ${colorClass}">${suit}</span>`;
+                    if (!isUsed) {
+                        div.onclick = () => {
+                            const card = { rank, suit };
+                            if (type === 'hero') {
+                                state.hero[index] = card;
+                                renderAllCards();
+                                updateModeIndicator();
+                                closePicker();
+                            } else if (type === 'villain') {
+                                state.villain[index] = card;
+                                state.rangeMode = false;
+                                state.rangeHands = new Set();
+                                state.blockers = [];
+                                state.filters = [];
+                                document.getElementById('rangeStatus').classList.remove('active');
+                                document.getElementById('rangeBtn').classList.remove('active');
+                                document.getElementById('filterStatus').style.display = 'none';
+                                renderAllCards();
+                                updateModeIndicator();
+                                closePicker();
+                            } else if (type === 'board') {
+                                state.board[index] = card;
+                                renderAllCards();
+                                updateModeIndicator();
+                                closePicker();
+                            }
+                            clearResults();
+                        };
+                    }
+                    grid.appendChild(div);
+                }
+            }
+            openOverlay('pickerOverlay');
+        }
+
+        function closePicker() {
+            closeOverlay('pickerOverlay');
+            state.selectedSlot = null;
+        }
+        document.getElementById('pickerOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closePicker();
+        });
+
+        // ============================================
+        // RANGE PICKER
+        // ============================================
+
+        function getRangeHandsByPercent(percent) {
+            if (percent === 0) return new Set();
+            const total = GTO_HAND_ORDER.length;
+            const count = Math.round((percent / 100) * total);
+            const selected = new Set();
+            for (let i = 0; i < Math.min(count, total); i++) {
+                selected.add(GTO_HAND_ORDER[i]);
+            }
+            return selected;
+        }
+
+        function renderRangeTable() {
+            const table = document.getElementById('rangeTable');
+            const ranks = RANK_ORDER;
+            const filtered = getFilteredRange();
+
+            let html = '<thead><tr><th class="corner"></th>';
+            for (let r of ranks) {
+                html += `<th>${r}</th>`;
+            }
+            html += '</tr></thead><tbody>';
+
+            for (let i = 0; i < ranks.length; i++) {
+                html += `<tr><th>${ranks[i]}</th>`;
+                for (let j = 0; j < ranks.length; j++) {
+                    const r1 = ranks[i];
+                    const r2 = ranks[j];
+                    let cellClass = 'cell';
+                    let display = '';
+                    let key = '';
+                    let isBlocked = false;
+                    let isFilteredOut = false;
+
+                    if (i === j) {
+                        key = r1 + r2;
+                        cellClass += ' pair';
+                        display = r1;
+                        isBlocked = state.blockers.includes(r1);
+                        if (state.filters.length > 0 && !state.filters.includes(r1)) {
+                            isFilteredOut = true;
+                        }
+                    } else if (i < j) {
+                        key = r1 + r2 + 's';
+                        cellClass += ' suited';
+                        display = r1 + r2;
+                        isBlocked = state.blockers.includes(r1) || state.blockers.includes(r2);
+                        if (state.filters.length > 0) {
+                            const hasFilter = state.filters.some(r => r === r1 || r === r2);
+                            if (!hasFilter) isFilteredOut = true;
+                        }
+                    } else {
+                        key = r2 + r1 + 'o';
+                        cellClass += ' offsuit';
+                        display = r1 + r2;
+                        isBlocked = state.blockers.includes(r1) || state.blockers.includes(r2);
+                        if (state.filters.length > 0) {
+                            const hasFilter = state.filters.some(r => r === r1 || r === r2);
+                            if (!hasFilter) isFilteredOut = true;
+                        }
+                    }
+
+                    const inRange = state.rangeHands.has(key);
+                    const inFiltered = filtered.has(key);
+
+                    if (isBlocked) cellClass += ' blocked';
+                    if (isFilteredOut && !isBlocked) cellClass += ' filtered-include';
+                    if (inRange && inFiltered) cellClass += ' in-range';
+
+                    html += `<td class="${cellClass}" data-key="${key}" onclick="toggleRangeHand('${key}')">${display}</td>`;
+                }
+                html += '</tr>';
+            }
+
+            html += '</tbody>';
+            table.innerHTML = html;
+
+            const count = state.rangeHands.size;
+            const filteredCount = filtered.size;
+            const total = ALL_HANDS.length;
+            const pct = (count / total * 100);
+
+            document.getElementById('rangeCountDisplay').textContent = count;
+            document.getElementById('rangeSliderValue').textContent = pct.toFixed(1) + '%';
+
+            const slider = document.getElementById('rangeSlider');
+            slider.value = pct;
+
+            const status = document.getElementById('rangeStatus');
+            if (state.rangeMode && count > 0) {
+                status.classList.add('active');
+                document.getElementById('rangeStatusText').textContent = filteredCount + ' (из ' + count + ')';
+
+                let filterText = '';
+                if (state.blockers.length > 0) {
+                    filterText += '🚫 ' + state.blockers.join(', ');
+                }
+                if (state.filters.length > 0) {
+                    if (filterText) filterText += ' | ';
+                    filterText += '🎯 ' + state.filters.join(', ');
+                }
+                if (filterText) {
+                    document.getElementById('filterStatus').style.display = 'inline';
+                    document.getElementById('filterStatus').textContent = filterText;
+                } else {
+                    document.getElementById('filterStatus').style.display = 'none';
+                }
+            }
+        }
+
+        function toggleRangeHand(key) {
+            if (state.rangeHands.has(key)) {
+                state.rangeHands.delete(key);
+            } else {
+                state.rangeHands.add(key);
+            }
+            renderRangeTable();
+        }
+
+        function openRangePicker() {
+            if (!state.rangeMode && (state.villain[0] !== null || state.villain[1] !== null)) {
+                if (!confirm('При выборе диапазона текущие карты соперника будут очищены. Продолжить?')) {
+                    return;
+                }
+                state.villain = [null, null];
+                state.blockers = [];
+                state.filters = [];
+            }
+
+            state.rangeMode = true;
+            const count = state.rangeHands.size;
+            const total = ALL_HANDS.length;
+            const pct = (count / total * 100);
+            const slider = document.getElementById('rangeSlider');
+            slider.value = pct;
+
+            renderRangeTable();
+            openOverlay('rangeOverlay');
+        }
+
+        function closeRangePicker() {
+            closeOverlay('rangeOverlay');
+        }
+
+        function applyRange() {
+            if (state.rangeHands.size === 0) {
+                alert('Диапазон пуст! Добавь хотя бы одну руку.');
+                return;
+            }
+
+            state.rangeMode = true;
+            state.villain = [null, null];
+
+            const status = document.getElementById('rangeStatus');
+            status.classList.add('active');
+            const filtered = getFilteredRange();
+            document.getElementById('rangeStatusText').textContent = filtered.size + ' (из ' + state.rangeHands.size + ')';
+
+            let filterText = '';
+            if (state.blockers.length > 0) {
+                filterText += '🚫 ' + state.blockers.join(', ');
+            }
+            if (state.filters.length > 0) {
+                if (filterText) filterText += ' | ';
+                filterText += '🎯 ' + state.filters.join(', ');
+            }
+            if (filterText) {
+                document.getElementById('filterStatus').style.display = 'inline';
+                document.getElementById('filterStatus').textContent = filterText;
+            } else {
+                document.getElementById('filterStatus').style.display = 'none';
+            }
+            document.getElementById('rangeBtn').classList.add('active');
+
+            renderAllCards();
+            updateModeIndicator();
+            closeRangePicker();
+            clearResults();
+        }
+
+        function resetRange() {
+            state.rangeHands = new Set();
+            state.rangeMode = false;
+            state.villain = [null, null];
+            state.blockers = [];
+            state.filters = [];
+            document.getElementById('rangeStatus').classList.remove('active');
+            document.getElementById('rangeBtn').classList.remove('active');
+            document.getElementById('filterStatus').style.display = 'none';
+            const slider = document.getElementById('rangeSlider');
+            slider.value = 0;
+            renderAllCards();
+            updateModeIndicator();
+            renderRangeTable();
+            clearResults();
+        }
+
+        function setRangePreset(pct) {
+            const slider = document.getElementById('rangeSlider');
+            slider.value = pct;
+            const newHands = getRangeHandsByPercent(pct);
+            state.rangeHands = newHands;
+            renderRangeTable();
+        }
+
+        document.getElementById('rangeSlider').addEventListener('input', function() {
+            const pct = parseFloat(this.value);
+            const newHands = getRangeHandsByPercent(pct);
+            state.rangeHands = newHands;
+            renderRangeTable();
+        });
+
+        document.getElementById('rangeOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeRangePicker();
+        });
+
+        // ============================================
+        // BLOCKER PICKER
+        // ============================================
+
+        function openBlockerPicker() {
+            const grid = document.getElementById('blockerGrid');
+            grid.innerHTML = '';
+            for (let rank of RANK_ORDER) {
+                const btn = document.createElement('div');
+                btn.className = 'filter-btn' + (state.blockers.includes(rank) ? ' active-blocker' : '');
+                btn.textContent = rank;
+                btn.onclick = () => {
+                    if (state.blockers.includes(rank)) {
+                        state.blockers = state.blockers.filter(r => r !== rank);
+                    } else {
+                        state.blockers.push(rank);
+                    }
+                    renderBlockerPicker();
+                };
+                grid.appendChild(btn);
+            }
+            openOverlay('blockerOverlay');
+        }
+
+        function renderBlockerPicker() {
+            const btns = document.querySelectorAll('#blockerGrid .filter-btn');
+            btns.forEach(btn => {
+                const rank = btn.textContent;
+                btn.classList.toggle('active-blocker', state.blockers.includes(rank));
+            });
+        }
+
+        function applyBlockers() {
+            closeBlockerPicker();
+            applyFiltersAndBlockers();
+        }
+
+        function closeBlockerPicker() {
+            closeOverlay('blockerOverlay');
+        }
+
+        function clearBlockers() {
+            state.blockers = [];
+            renderBlockerPicker();
+            applyFiltersAndBlockers();
+        }
+
+        document.getElementById('blockerOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeBlockerPicker();
+        });
+
+        // ============================================
+        // FILTER INCLUDE PICKER
+        // ============================================
+
+        function openFilterPicker() {
+            const grid = document.getElementById('filterGrid');
+            grid.innerHTML = '';
+            for (let rank of RANK_ORDER) {
+                const btn = document.createElement('div');
+                btn.className = 'filter-btn' + (state.filters.includes(rank) ? ' active' : '');
+                btn.textContent = rank;
+                btn.onclick = () => {
+                    if (state.filters.includes(rank)) {
+                        state.filters = state.filters.filter(r => r !== rank);
+                    } else {
+                        state.filters.push(rank);
+                    }
+                    renderFilterPicker();
+                };
+                grid.appendChild(btn);
+            }
+            openOverlay('filterOverlay');
+        }
+
+        function renderFilterPicker() {
+            const btns = document.querySelectorAll('#filterGrid .filter-btn');
+            btns.forEach(btn => {
+                const rank = btn.textContent;
+                btn.classList.toggle('active', state.filters.includes(rank));
+            });
+        }
+
+        function applyFilters() {
+            closeFilterPicker();
+            applyFiltersAndBlockers();
+        }
+
+        function closeFilterPicker() {
+            closeOverlay('filterOverlay');
+        }
+
+        function clearFilters() {
+            state.filters = [];
+            renderFilterPicker();
+            applyFiltersAndBlockers();
+        }
+
+        document.getElementById('filterOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeFilterPicker();
+        });
+
+        // ============================================
+        // COMMON FILTER LOGIC
+        // ============================================
+
+        function applyFiltersAndBlockers() {
+            renderAllCards();
+            updateModeIndicator();
+            clearResults();
+            if (state.rangeMode && state.rangeHands.size > 0) {
+                const filtered = getFilteredRange();
+                const status = document.getElementById('rangeStatus');
+                status.classList.add('active');
+                document.getElementById('rangeStatusText').textContent = filtered.size + ' (из ' + state.rangeHands.size +
+                    ')';
+
+                let filterText = '';
+                if (state.blockers.length > 0) {
+                    filterText += '🚫 ' + state.blockers.join(', ');
+                }
+                if (state.filters.length > 0) {
+                    if (filterText) filterText += ' | ';
+                    filterText += '🎯 ' + state.filters.join(', ');
+                }
+                if (filterText) {
+                    document.getElementById('filterStatus').style.display = 'inline';
+                    document.getElementById('filterStatus').textContent = filterText;
+                } else {
+                    document.getElementById('filterStatus').style.display = 'none';
+                }
+            }
+            renderFilterTags();
+        }
+
+        function renderFilterTags() {
+            const container = document.getElementById('filterTags');
+            container.innerHTML = '';
+            if (state.blockers.length === 0 && state.filters.length === 0) return;
+            for (let r of state.blockers) {
+                const tag = document.createElement('span');
+                tag.className = 'filter-tag blocker-tag';
+                tag.innerHTML = `🚫 ${r} <span class="remove" onclick="removeBlocker('${r}')">×</span>`;
+                container.appendChild(tag);
+            }
+            for (let r of state.filters) {
+                const tag = document.createElement('span');
+                tag.className = 'filter-tag include-tag';
+                tag.innerHTML = `🎯 ${r} <span class="remove" onclick="removeFilter('${r}')">×</span>`;
+                container.appendChild(tag);
+            }
+        }
+
+        function removeBlocker(rank) {
+            state.blockers = state.blockers.filter(r => r !== rank);
+            applyFiltersAndBlockers();
+        }
+
+        function removeFilter(rank) {
+            state.filters = state.filters.filter(r => r !== rank);
+            applyFiltersAndBlockers();
+        }
+
+        // ============================================
+        // CLEAR FUNCTIONS
+        // ============================================
+
+        function clearHeroCards() {
+            state.hero = [null, null];
+            renderAllCards();
+            updateModeIndicator();
+            clearResults();
+        }
+
+        function clearVillainCards() {
+            state.villain = [null, null];
+            state.rangeMode = false;
+            state.rangeHands = new Set();
+            state.blockers = [];
+            state.filters = [];
+            document.getElementById('rangeStatus').classList.remove('active');
+            document.getElementById('rangeBtn').classList.remove('active');
+            document.getElementById('filterStatus').style.display = 'none';
+            renderAllCards();
+            updateModeIndicator();
+            clearResults();
+        }
+
+        function clearBoardCards() {
+            state.board = [null, null, null, null, null];
+            renderAllCards();
+            updateModeIndicator();
+            clearResults();
+        }
+
+        function clearResults() {
+            document.getElementById('winEquity').textContent = '—';
+            document.getElementById('tieEquity').textContent = '—';
+            document.getElementById('loseEquity').textContent = '—';
+            document.getElementById('heroHandName').textContent = '—';
+            document.getElementById('villainHandName').textContent = '—';
+            document.getElementById('resultTip').innerHTML = '💡 <strong>Подсказка:</strong> Выбери карты Hero и Villain, затем нажми "Рассчитать".';
+            document.getElementById('outsContainer').style.display = 'none';
+            document.getElementById('outsCategories').innerHTML = '';
+            document.getElementById('outsInfo').textContent = '';
+            document.getElementById('betSizeAdvice').textContent = '';
+            document.getElementById('potOddsPercent').textContent = '—';
+            document.getElementById('requiredEquity').textContent = '—';
+            document.getElementById('resultTip').style.borderLeftColor = '#fbbf24';
+        }
+
+        // ============================================
+        // BET TYPE
+        // ============================================
+
+        function setBetType(type) {
+            state.betType = type;
+            document.getElementById('betTypeAllin').classList.toggle('active', type === 'allin');
+            document.getElementById('betTypeNormal').classList.toggle('active', type === 'normal');
+            updateBetTypeLabels();
+            const winText = document.getElementById('winEquity').textContent;
+            if (winText !== '—') {
+                calculateAll();
+            }
+        }
+
+        function updateBetTypeLabels() {
+            const boardCards = state.board.filter(c => c !== null);
+            const boardCount = boardCards.length;
+
+            const allinBtn = document.getElementById('betTypeAllin');
+            const normalBtn = document.getElementById('betTypeNormal');
+
+            allinBtn.disabled = false;
+            normalBtn.disabled = false;
+
+            if (boardCount === 4) {
+                allinBtn.querySelector('.hint').textContent = '×2';
+                normalBtn.querySelector('.hint').textContent = '×2';
+            } else if (boardCount === 5) {
+                allinBtn.querySelector('.hint').textContent = '❌';
+                normalBtn.querySelector('.hint').textContent = '❌';
+                allinBtn.disabled = true;
+                normalBtn.disabled = true;
+            } else if (boardCount >= 3) {
+                allinBtn.querySelector('.hint').textContent = '×4';
+                normalBtn.querySelector('.hint').textContent = '×2';
+            } else {
+                allinBtn.querySelector('.hint').textContent = '—';
+                normalBtn.querySelector('.hint').textContent = '—';
+                allinBtn.disabled = true;
+                normalBtn.disabled = true;
+            }
+        }
+
+        function updateModeIndicator() {
+            const boardCards = state.board.filter(c => c !== null);
+            const indicator = document.getElementById('modeIndicator');
+            const badge = document.getElementById('boardBadge');
+
+            if (boardCards.length >= 3) {
+                const modeText = boardCards.length === 5 ? 'Ривер' :
+                    boardCards.length === 4 ? 'Терн' : 'Флоп';
+                indicator.innerHTML = `📊 <span class="mode-icon">Известный борд (${modeText})</span>`;
+                indicator.style.color = '#2d1b4e';
+                badge.textContent = `${boardCards.length}/5 карт`;
+            } else {
+                indicator.innerHTML = `🔄 <span class="mode-icon">Неизвестный борд</span> (${boardCards.length}/3)`;
+                indicator.style.color = '#4b3a6a';
+                badge.textContent = `до 5 карт (${boardCards.length}/3)`;
+            }
+
+            updateBetTypeLabels();
+            renderAllCards();
+        }
+
+        // ============================================
+        // RANDOM FUNCTIONS
+        // ============================================
+
+        function setRandomHero() {
+            const available = [];
+            for (let rank of RANKS)
+                for (let suit of SUITS) available.push({ rank, suit });
+            const shuffled = available.sort(() => Math.random() - 0.5);
+            state.hero = [shuffled[0], shuffled[1]];
+            renderAllCards();
+            updateModeIndicator();
+            clearResults();
+        }
+
+        function setRandomVillain() {
+            if (state.rangeMode) {
+                const filtered = getFilteredRange();
+                if (filtered.size === 0) {
+                    alert('Нет доступных рук в диапазоне после фильтрации!');
+                    return;
+                }
+                const keys = Array.from(filtered);
+                const randomKey = keys[Math.floor(Math.random() * keys.length)];
+                const hand = ALL_HANDS.find(h => h.key === randomKey);
+                if (hand) {
+                    const s1 = SUITS[Math.floor(Math.random() * SUITS.length)];
+                    let s2;
+                    if (hand.type === 'pair') {
+                        let remaining = SUITS.filter(s => s !== s1);
+                        s2 = remaining[Math.floor(Math.random() * remaining.length)];
+                    } else if (hand.type === 'suited') {
+                        s2 = s1;
+                    } else {
+                        let remaining = SUITS.filter(s => s !== s1);
+                        s2 = remaining[Math.floor(Math.random() * remaining.length)];
+                    }
+                    state.villain = [
+                        { rank: hand.rank1, suit: s1 },
+                        { rank: hand.rank2, suit: s2 }
+                    ];
+                }
+            } else {
+                const usedCards = new Set();
+                for (let c of state.hero) { if (c) usedCards.add(c.rank + c.suit); }
+                for (let c of state.villain) { if (c) usedCards.add(c.rank + c.suit); }
+                const available = [];
+                for (let rank of RANKS)
+                    for (let suit of SUITS) { const key = rank + suit; if (!usedCards.has(key)) available.push({ rank,
+                            suit }); }
+                const shuffled = available.sort(() => Math.random() - 0.5);
+                state.villain = [shuffled[0], shuffled[1]];
+            }
+            renderAllCards();
+            updateModeIndicator();
+            clearResults();
+        }
+
+        function setBoardFlop() {
+            state.board = [null, null, null, state.board[3], state.board[4]];
+            const usedCards = new Set();
+            for (let c of state.hero) { if (c) usedCards.add(c.rank + c.suit); }
+            for (let c of state.villain) { if (c) usedCards.add(c.rank + c.suit); }
+            for (let c of state.board) { if (c) usedCards.add(c.rank + c.suit); }
+            const available = [];
+            for (let rank of RANKS)
+                for (let suit of SUITS) { const key = rank + suit; if (!usedCards.has(key)) available.push({ rank, suit }); }
+            const shuffled = available.sort(() => Math.random() - 0.5);
+            for (let i = 0; i < 3 && i < shuffled.length; i++) state.board[i] = shuffled[i];
+            renderAllCards();
+            updateModeIndicator();
+            clearResults();
+        }
+
+        function setBoardTurn() {
+            const usedCards = new Set();
+            for (let c of state.hero) { if (c) usedCards.add(c.rank + c.suit); }
+            for (let c of state.villain) { if (c) usedCards.add(c.rank + c.suit); }
+            for (let c of state.board) { if (c) usedCards.add(c.rank + c.suit); }
+            if (state.board[3]) usedCards.delete(state.board[3].rank + state.board[3].suit);
+            const available = [];
+            for (let rank of RANKS)
+                for (let suit of SUITS) { const key = rank + suit; if (!usedCards.has(key)) available.push({ rank, suit }); }
+            if (available.length > 0) {
+                const random = available[Math.floor(Math.random() * available.length)];
+                state.board[3] = random;
+            }
+            renderAllCards();
+            updateModeIndicator();
+            clearResults();
+        }
+
+        function setBoardRiver() {
+            const usedCards = new Set();
+            for (let c of state.hero) { if (c) usedCards.add(c.rank + c.suit); }
+            for (let c of state.villain) { if (c) usedCards.add(c.rank + c.suit); }
+            for (let c of state.board) { if (c) usedCards.add(c.rank + c.suit); }
+            if (state.board[4]) usedCards.delete(state.board[4].rank + state.board[4].suit);
+            const available = [];
+            for (let rank of RANKS)
+                for (let suit of SUITS) { const key = rank + suit; if (!usedCards.has(key)) available.push({ rank, suit }); }
+            if (available.length > 0) {
+                const random = available[Math.floor(Math.random() * available.length)];
+                state.board[4] = random;
+            }
+            renderAllCards();
+            updateModeIndicator();
+            clearResults();
+        }
+
+        // ============================================
+        // HAND EVALUATION (полная версия)
+        // ============================================
+
+        function evaluateHand(cards) {
+            if (cards.length < 5) return { handName: 'Недостаточно карт', handStrength: 0, rank1: 0, rank2: 0, rank3: 0,
+                kickers: [] };
+
+            const rankCount = {},
+                suitCount = {},
+                rankVals = [];
+            for (let c of cards) {
+                const r = RANK_VALUES[c.rank];
+                rankVals.push(r);
+                rankCount[r] = (rankCount[r] || 0) + 1;
+                suitCount[c.suit] = (suitCount[c.suit] || 0) + 1;
+            }
+            rankVals.sort((a, b) => b - a);
+            const uniqueRanks = [...new Set(rankVals)].sort((a, b) => b - a);
+
+            let flushSuit = null,
+                flushCards = [];
+            for (let [suit, count] of Object.entries(suitCount)) {
+                if (count >= 5) {
+                    flushSuit = suit;
+                    flushCards = cards.filter(c => c.suit === suit).map(c => RANK_VALUES[c.rank]).sort((a, b) => b - a);
+                    break;
+                }
+            }
+
+            let straightHigh = 0;
+            for (let i = 0; i <= uniqueRanks.length - 5; i++) {
+                if (uniqueRanks[i] - uniqueRanks[i + 4] === 4) { straightHigh = uniqueRanks[i]; break; }
+            }
+            if (uniqueRanks.includes(14) && uniqueRanks.includes(5) && uniqueRanks.includes(4) && uniqueRanks.includes(3) &&
+                uniqueRanks.includes(2)) straightHigh = 5;
+
+            let fourRank = 0,
+                threeRank = 0,
+                pairs = [];
+            for (let [rank, count] of Object.entries(rankCount)) {
+                const r = parseInt(rank);
+                if (count === 4) fourRank = r;
+                else if (count === 3) threeRank = r;
+                else if (count === 2) pairs.push(r);
+            }
+            pairs.sort((a, b) => b - a);
+
+            let handName = 'Старшая карта',
+                handStrength = 0,
+                rank1 = 0,
+                rank2 = 0,
+                rank3 = 0,
+                kickers = [];
+
+            if (straightHigh > 0 && flushSuit) {
+                const flushRanks = flushCards;
+                let sfHigh = 0;
+                for (let i = 0; i <= flushRanks.length - 5; i++) {
+                    if (flushRanks[i] - flushRanks[i + 4] === 4) { sfHigh = flushRanks[i]; break; }
+                }
+                if (flushRanks.includes(14) && flushRanks.includes(5) && flushRanks.includes(4) && flushRanks.includes(3) &&
+                    flushRanks.includes(2)) sfHigh = 5;
+                if (sfHigh > 0) {
+                    const rankName = getRankName(sfHigh);
+                    handName = sfHigh === 14 && flushRanks.includes(13) && flushRanks.includes(12) && flushRanks.includes(
+                    11) && flushRanks.includes(10) ? 'Роял-флеш' : `Стрит-флеш (${rankName})`;
+                    handStrength = 9;
+                    rank1 = sfHigh;
+                }
+            }
+
+            if (handStrength === 0 && fourRank > 0) {
+                handName = `Каре (${getRankName(fourRank)})`;
+                handStrength = 8;
+                rank1 = fourRank;
+                kickers = rankVals.filter(r => r !== fourRank).slice(0, 1);
+            } else if (handStrength === 0 && threeRank > 0 && pairs.length > 0) {
+                handName = `Фулл-хаус (${getRankName(threeRank)} на ${getRankName(pairs[0])})`;
+                handStrength = 7;
+                rank1 = threeRank;
+                rank2 = pairs[0];
+            } else if (handStrength === 0 && flushSuit) {
+                handName = `Флеш (${flushSuit})`;
+                handStrength = 6;
+                rank1 = flushCards[0] || 0;
+                kickers = flushCards.slice(0, 5);
+            } else if (handStrength === 0 && straightHigh > 0) {
+                handName = `Стрит (${getRankName(straightHigh)})`;
+                handStrength = 5;
+                rank1 = straightHigh;
+            } else if (handStrength === 0 && threeRank > 0) {
+                handName = `Сет (${getRankName(threeRank)})`;
+                handStrength = 4;
+                rank1 = threeRank;
+                kickers = rankVals.filter(r => r !== threeRank).slice(0, 2);
+            } else if (handStrength === 0 && pairs.length >= 2) {
+                handName = `Две пары (${getRankName(pairs[0])} и ${getRankName(pairs[1])})`;
+                handStrength = 3;
+                rank1 = pairs[0];
+                rank2 = pairs[1];
+                kickers = rankVals.filter(r => r !== pairs[0] && r !== pairs[1]).slice(0, 1);
+            } else if (handStrength === 0 && pairs.length === 1) {
+                handName = `Пара (${getRankName(pairs[0])})`;
+                handStrength = 2;
+                rank1 = pairs[0];
+                kickers = rankVals.filter(r => r !== pairs[0]).slice(0, 3);
+            } else if (handStrength === 0 && rankVals.length > 0) {
+                handName = `Старшая карта (${getRankName(rankVals[0])})`;
+                handStrength = 1;
+                rank1 = rankVals[0];
+                kickers = rankVals.slice(1, 5);
+            }
+
+            return { handName, handStrength, rank1, rank2, rank3, kickers };
+        }
+
+        function compareHands(h1, h2) {
+            if (h1.handStrength !== h2.handStrength) return h1.handStrength - h2.handStrength;
+            if (h1.rank1 !== h2.rank1) return h1.rank1 - h2.rank1;
+            if (h1.rank2 !== h2.rank2) return h1.rank2 - h2.rank2;
+            if (h1.rank3 !== h2.rank3) return h1.rank3 - h2.rank3;
+            for (let i = 0; i < Math.min(h1.kickers.length, h2.kickers.length); i++) {
+                if (h1.kickers[i] !== h2.kickers[i]) return h1.kickers[i] - h2.kickers[i];
+            }
+            return 0;
+        }
+
+        function calculateOutsForPlayer(playerCards, opponentCards, boardCards) {
+            if (playerCards.length < 2 || opponentCards.length < 2 || boardCards.length < 3) {
+                return { win: [], tie: [] };
+            }
+
+            const usedCards = new Set();
+            for (let c of [...playerCards, ...opponentCards, ...boardCards]) usedCards.add(c.rank + c.suit);
+
+            const playerCurrent = evaluateHand([...playerCards, ...boardCards]);
+            const currentStrength = playerCurrent.handStrength || 0;
+
+            const winOuts = [];
+            const tieOuts = [];
+
+            for (let rank of RANKS) {
+                for (let suit of SUITS) {
+                    const key = rank + suit;
+                    if (usedCards.has(key)) continue;
+
+                    const testPlayerCards = [...playerCards, ...boardCards, { rank, suit }];
+                    const testOpponentCards = [...opponentCards, ...boardCards, { rank, suit }];
+
+                    const playerTest = evaluateHand(testPlayerCards);
+                    const opponentTest = evaluateHand(testOpponentCards);
+
+                    const playerStrength = playerTest.handStrength || 0;
+
+                    if (playerStrength <= currentStrength) continue;
+
+                    let catType = null;
+                    if (playerStrength >= 8) catType = 'four';
+                    else if (playerStrength === 7) catType = 'full_house';
+                    else if (playerStrength === 6) catType = 'flush';
+                    else if (playerStrength === 5) catType = 'straight';
+                    else if (playerStrength === 4) catType = 'three';
+                    else if (playerStrength === 3) catType = 'two_pair';
+                    else if (playerStrength === 2) catType = 'overpair';
+
+                    const testHandName = playerTest.handName || '';
+                    if (testHandName.includes('Стрит-флеш') || testHandName.includes('Роял-флеш')) catType =
+                    'straight_flush';
+
+                    if (!catType) continue;
+
+                    const cmp = compareHands(playerTest, opponentTest);
+
+                    if (cmp > 0) {
+                        winOuts.push({ type: catType, cards: [{ rank, suit }] });
+                    } else if (cmp === 0) {
+                        tieOuts.push({ type: catType, cards: [{ rank, suit }] });
+                    }
+                }
+            }
+
+            function mergeOuts(list) {
+                const merged = {};
+                for (let item of list) {
+                    const key = item.type;
+                    if (merged[key]) merged[key].cards.push(...item.cards);
+                    else merged[key] = { type: item.type, cards: [...item.cards] };
+                }
+                return Object.values(merged);
+            }
+
+            return {
+                win: mergeOuts(winOuts),
+                tie: mergeOuts(tieOuts)
+            };
+        }
+
+        // ============================================
+        // MAIN CALCULATE (сокращён, полная логика сохранена)
+        // ============================================
+
+        function calculateAll() {
+            const heroCards = state.hero.filter(c => c !== null);
+
+            if (heroCards.length < 2) {
+                document.getElementById('resultTip').innerHTML = '⚠️ <strong>Нужно выбрать 2 карты для Hero!</strong>';
+                document.getElementById('resultTip').style.borderLeftColor = '#fbbf24';
+                return;
+            }
+
+            let villainCards = state.villain.filter(c => c !== null);
+            let isRangeMode = state.rangeMode && state.rangeHands.size > 0;
+
+            if (villainCards.length < 2 && !isRangeMode) {
+                document.getElementById('resultTip').innerHTML =
+                    '⚠️ <strong>Нужно выбрать карты соперника или задать диапазон!</strong>';
+                document.getElementById('resultTip').style.borderLeftColor = '#fbbf24';
+                return;
+            }
+
+            if (isRangeMode) {
+                const filtered = getFilteredRange();
+                if (filtered.size === 0) {
+                    document.getElementById('resultTip').innerHTML =
+                        '⚠️ <strong>Все руки диапазона отфильтрованы!</strong>';
+                    document.getElementById('resultTip').style.borderLeftColor = '#dc2626';
+                    return;
+                }
+                document.getElementById('rangeStatusText').textContent = filtered.size + ' (из ' + state.rangeHands.size +
+                    ')';
+            }
+
+            const usedCards = new Set();
+            for (let c of heroCards) usedCards.add(c.rank + c.suit);
+            if (villainCards.length === 2) {
+                for (let c of villainCards) usedCards.add(c.rank + c.suit);
+            }
+
+            let boardCards = state.board.filter(c => c !== null);
+            const isKnownBoard = boardCards.length >= 3;
+
+            for (let c of boardCards) {
+                if (usedCards.has(c.rank + c.suit)) {
+                    document.getElementById('resultTip').innerHTML =
+                        '⚠️ <strong>Ошибка!</strong> Карта ' + c.rank + c.suit + ' уже используется!';
+                    document.getElementById('resultTip').style.borderLeftColor = '#dc2626';
+                    return;
+                }
+                usedCards.add(c.rank + c.suit);
+            }
+
+            const available = [];
+            for (let rank of RANKS) {
+                for (let suit of SUITS) {
+                    const key = rank + suit;
+                    if (!usedCards.has(key)) available.push({ rank, suit });
+                }
+            }
+
+            const cardsNeeded = 5 - boardCards.length;
+
+            if (cardsNeeded < 0) {
+                document.getElementById('resultTip').innerHTML = '⚠️ <strong>Слишком много карт на столе!</strong>';
+                document.getElementById('resultTip').style.borderLeftColor = '#dc2626';
+                return;
+            }
+
+            if (available.length < cardsNeeded) {
+                document.getElementById('resultTip').innerHTML = '⚠️ <strong>Недостаточно карт в колоде!</strong>';
+                document.getElementById('resultTip').style.borderLeftColor = '#dc2626';
+                return;
+            }
+
+            const NUM_SIMULATIONS = 30000;
+            let wins = 0,
+                ties = 0,
+                losses = 0;
+
+            if (isRangeMode && villainCards.length < 2) {
+                const filtered = getFilteredRange();
+                const rangeKeys = Array.from(filtered);
+                const rangeHandsData = rangeKeys.map(key => ALL_HANDS.find(h => h.key === key)).filter(h => h);
+
+                if (rangeHandsData.length === 0) {
+                    document.getElementById('resultTip').innerHTML = '⚠️ <strong>Нет доступных рук в диапазоне!</strong>';
+                    document.getElementById('resultTip').style.borderLeftColor = '#dc2626';
+                    return;
+                }
+
+                let totalSims = 0;
+                for (let hand of rangeHandsData) {
+                    const suitCombos = getSuitCombos(hand.type);
+                    for (let combo of suitCombos) {
+                        const vCards = [
+                            { rank: hand.rank1, suit: combo[0] },
+                            { rank: hand.rank2, suit: combo[1] }
+                        ];
+                        if (usedCards.has(vCards[0].rank + vCards[0].suit) ||
+                            usedCards.has(vCards[1].rank + vCards[1].suit)) continue;
+
+                        const vUsed = new Set(usedCards);
+                        vUsed.add(vCards[0].rank + vCards[0].suit);
+                        vUsed.add(vCards[1].rank + vCards[1].suit);
+
+                        const vAvailable = [];
+                        for (let rank of RANKS) {
+                            for (let suit of SUITS) {
+                                const key = rank + suit;
+                                if (!vUsed.has(key)) vAvailable.push({ rank, suit });
+                            }
+                        }
+
+                        if (vAvailable.length < cardsNeeded) continue;
+
+                        const simsPerHand = Math.max(1, Math.floor(NUM_SIMULATIONS / (rangeHandsData.length * suitCombos
+                        .length)));
+                        for (let sim = 0; sim < simsPerHand && totalSims < NUM_SIMULATIONS * 2; sim++) {
+                            const shuffled = [...vAvailable];
+                            for (let i = shuffled.length - 1; i > 0; i--) {
+                                const j = Math.floor(Math.random() * (i + 1));
+                                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                            }
+
+                            const fullBoard = [...boardCards];
+                            for (let i = 0; i < cardsNeeded; i++) {
+                                fullBoard.push(shuffled[i]);
+                            }
+
+                            const heroHand = evaluateHand([...heroCards, ...fullBoard]);
+                            const villainHand = evaluateHand([...vCards, ...fullBoard]);
+
+                            const cmp = compareHands(heroHand, villainHand);
+                            if (cmp > 0) wins++;
+                            else if (cmp < 0) losses++;
+                            else ties++;
+                            totalSims++;
+                        }
+                    }
+                }
+
+                if (totalSims > 0) {
+                    const factor = NUM_SIMULATIONS / totalSims;
+                    wins = Math.round(wins * factor);
+                    ties = Math.round(ties * factor);
+                    losses = Math.round(losses * factor);
+                }
+
+            } else if (villainCards.length === 2) {
+                if (boardCards.length === 5) {
+                    const heroHand = evaluateHand([...heroCards, ...boardCards]);
+                    const villainHand = evaluateHand([...villainCards, ...boardCards]);
+                    const cmp = compareHands(heroHand, villainHand);
+                    if (cmp > 0) wins = 1;
+                    else if (cmp < 0) losses = 1;
+                    else ties = 1;
+                } else {
+                    const totalCombos = combinations(available.length, cardsNeeded);
+                    const maxSims = Math.min(NUM_SIMULATIONS, totalCombos);
+
+                    for (let sim = 0; sim < maxSims; sim++) {
+                        const shuffled = [...available];
+                        for (let i = shuffled.length - 1; i > 0; i--) {
+                            const j = Math.floor(Math.random() * (i + 1));
+                            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                        }
+
+                        const fullBoard = [...boardCards];
+                        for (let i = 0; i < cardsNeeded; i++) {
+                            fullBoard.push(shuffled[i]);
+                        }
+
+                        const heroHand = evaluateHand([...heroCards, ...fullBoard]);
+                        const villainHand = evaluateHand([...villainCards, ...fullBoard]);
+
+                        const cmp = compareHands(heroHand, villainHand);
+                        if (cmp > 0) wins++;
+                        else if (cmp < 0) losses++;
+                        else ties++;
+                    }
+
+                    if (maxSims < totalCombos) {
+                        const factor = totalCombos / maxSims;
+                        wins = Math.round(wins * factor);
+                        ties = Math.round(ties * factor);
+                        losses = Math.round(losses * factor);
+                    }
+                }
+            }
+
+            const total = wins + ties + losses;
+            let winPct, tiePct, losePct;
+
+            if (total === 0) {
+                winPct = tiePct = losePct = 0;
+            } else {
+                winPct = (wins / total * 100);
+                tiePct = (ties / total * 100);
+                losePct = (losses / total * 100);
+            }
+
+            document.getElementById('winEquity').textContent = winPct.toFixed(1);
+            document.getElementById('tieEquity').textContent = tiePct.toFixed(1);
+            document.getElementById('loseEquity').textContent = losePct.toFixed(1);
+
+            const heroCurrent = evaluateHand([...heroCards, ...boardCards]);
+            document.getElementById('heroHandName').textContent = heroCurrent.handName;
+
+            if (isRangeMode && villainCards.length < 2) {
+                const filtered = getFilteredRange();
+                document.getElementById('villainHandName').textContent = `📊 Диапазон (${filtered.size} из ${state.rangeHands.size} рук)`;
+            } else {
+                const villainCurrent = evaluateHand([...villainCards, ...boardCards]);
+                document.getElementById('villainHandName').textContent = villainCurrent.handName;
+            }
+
+            let totalWinOuts = 0,
+                totalTieOuts = 0;
+            let outsPct = 0,
+                tieOutsPct = 0;
+            let isForHero = true;
+            let heroAhead = false,
+                villainAhead = false;
+
+            if (villainCards.length === 2) {
+                const villainCurrent = evaluateHand([...villainCards, ...boardCards]);
+                heroAhead = compareHands(heroCurrent, villainCurrent) > 0;
+                villainAhead = compareHands(villainCurrent, heroCurrent) > 0;
+
+                if (isKnownBoard && boardCards.length >= 3 && boardCards.length < 5) {
+                    if (heroAhead) {
+                        const outsResult = calculateOutsForPlayer(villainCards, heroCards, boardCards);
+                        const winOuts = outsResult.win || [];
+                        const tieOuts = outsResult.tie || [];
+                        totalWinOuts = winOuts.reduce((sum, cat) => sum + cat.cards.length, 0);
+                        totalTieOuts = tieOuts.reduce((sum, cat) => sum + cat.cards.length, 0);
+                        isForHero = false;
+                    } else if (villainAhead) {
+                        const outsResult = calculateOutsForPlayer(heroCards, villainCards, boardCards);
+                        const winOuts = outsResult.win || [];
+                        const tieOuts = outsResult.tie || [];
+                        totalWinOuts = winOuts.reduce((sum, cat) => sum + cat.cards.length, 0);
+                        totalTieOuts = tieOuts.reduce((sum, cat) => sum + cat.cards.length, 0);
+                        isForHero = true;
+                    }
+
+                    const unknownCards = 52 - heroCards.length - villainCards.length - boardCards.length;
+
+                    let multiplier = 2;
+                    if (boardCards.length === 3) {
+                        multiplier = state.betType === 'allin' ? 4 : 2;
+                    } else if (boardCards.length === 4) {
+                        multiplier = 2;
+                    }
+
+                    outsPct = (totalWinOuts / unknownCards * 100) * (multiplier / 2);
+                    tieOutsPct = (totalTieOuts / unknownCards * 100) * (multiplier / 2);
+                    outsPct = Math.min(outsPct, 100);
+                    tieOutsPct = Math.min(tieOutsPct, 100);
+
+                    if (totalWinOuts > 0 || totalTieOuts > 0) {
+                        document.getElementById('outsContainer').style.display = 'block';
+                        const container = document.getElementById('outsCategories');
+                        container.innerHTML = '';
+
+                        const typeLabels = {
+                            'overpair': 'Старшая пара',
+                            'two_pair': 'Две пары',
+                            'three': 'Сет',
+                            'straight': 'Стрит',
+                            'flush': 'Флеш',
+                            'full_house': 'Фулл-хаус',
+                            'four': 'Каре',
+                            'straight_flush': 'Стрит-флеш'
+                        };
+
+                        const outsLabel = document.getElementById('outsLabel');
+                        const isVillainOuts = !isForHero;
+                        let labelText = isVillainOuts ? '🔴 Ауты СОПЕРНИКА' : '🟢 Твои ауты';
+                        outsLabel.textContent = labelText;
+
+                        const categoryClass = isVillainOuts ? 'villain-outs' : '';
+
+                        const outsData = isForHero ?
+                            calculateOutsForPlayer(heroCards, villainCards, boardCards) :
+                            calculateOutsForPlayer(villainCards, heroCards, boardCards);
+
+                        for (let cat of outsData.win) {
+                            if (cat.cards.length === 0) continue;
+                            const div = document.createElement('div');
+                            div.className = `outs-category ${categoryClass}`;
+                            const displayLabel = typeLabels[cat.type] || cat.type;
+                            div.innerHTML =
+                                `<span class="cat-label">🏆 ${displayLabel} (${cat.cards.length})</span><div class="cat-cards">${cat.cards.map(c => `<span class="card-mini">${c.rank}${c.suit}</span>`).join('')}</div>`;
+                            container.appendChild(div);
+                        }
+
+                        for (let cat of outsData.tie) {
+                            if (cat.cards.length === 0) continue;
+                            const div = document.createElement('div');
+                            div.className = `outs-category quality-tie ${categoryClass}`;
+                            const displayLabel = typeLabels[cat.type] || cat.type;
+                            div.innerHTML =
+                                `<span class="cat-label">🤝 ${displayLabel} (НИЧЬЯ, ${cat.cards.length})</span><div class="cat-cards">${cat.cards.map(c => `<span class="card-mini">${c.rank}${c.suit}</span>`).join('')}</div>`;
+                            container.appendChild(div);
+                        }
+
+                        const infoEl = document.getElementById('outsInfo');
+                        const betTypeText = boardCards.length === 3 ?
+                            (state.betType === 'allin' ? 'All-in: ×4' : 'Обычная: ×2') :
+                            'Терн: ×2';
+
+                        const adviceEl = document.getElementById('betSizeAdvice');
+                        if (heroAhead && boardCards.length < 5) {
+                            const villainChance = outsPct + tieOutsPct * 0.5;
+                            if (villainChance > 0) {
+                                const minBetPercent = Math.ceil(villainChance + 5);
+                                const pot = parseInt(document.getElementById('potSize').value) || 100;
+                                const recommendedBet = Math.round(pot * minBetPercent / 100);
+                                adviceEl.innerHTML =
+                                    `💰 <strong>Совет:</strong> У соперника ${villainChance.toFixed(1)}% на улучшение. Ставь <strong>от ${minBetPercent}% банка (≈${recommendedBet} фишек)</strong>`;
+                                adviceEl.style.display = 'block';
+                            } else {
+                                adviceEl.innerHTML = `💰 <strong>Совет:</strong> У соперника 0% на улучшение — ставь любую сумму!`;
+                                adviceEl.style.display = 'block';
+                            }
+                        } else if (villainAhead && boardCards.length < 5) {
+                            const ourChance = outsPct + tieOutsPct * 0.5;
+                            adviceEl.innerHTML =
+                                `⚠️ <strong>Ты позади.</strong> Шансы на улучшение: ${ourChance.toFixed(1)}%. Коллируй только если шансы банка ≤ ${ourChance.toFixed(1)}%`;
+                            adviceEl.style.display = 'block';
+                        } else {
+                            adviceEl.style.display = 'none';
+                        }
+
+                        infoEl.textContent =
+                            `📊 ${totalWinOuts} аутов (${outsPct.toFixed(1)}%) | ${totalTieOuts} ничья (${tieOutsPct.toFixed(1)}%) | ${betTypeText}`;
+                    } else {
+                        document.getElementById('outsContainer').style.display = 'none';
+                    }
+                } else if (isKnownBoard && boardCards.length === 5) {
+                    document.getElementById('outsContainer').style.display = 'none';
+                } else {
+                    document.getElementById('outsContainer').style.display = 'none';
+                }
+            } else {
+                document.getElementById('outsContainer').style.display = 'none';
+            }
+
+            let tip = '';
+            let borderColor = '#fbbf24';
+
+            if (heroAhead && isKnownBoard && boardCards.length < 5 && villainCards.length === 2) {
+                const villainChance = outsPct + tieOutsPct * 0.5;
+                if (villainChance < 10) {
+                    tip = '🔥 <strong>Ты абсолютный фаворит!</strong> Дави крупными ставками.';
+                    borderColor = '#16a34a';
+                } else if (villainChance < 25) {
+                    tip = '✅ <strong>Ты уверенно впереди.</strong> Ставь на вэлью.';
+                    borderColor = '#16a34a';
+                } else {
+                    tip = '⚠️ <strong>Ты впереди, но у соперника есть шансы.</strong> Ставь достаточно.';
+                    borderColor = '#f59e0b';
+                }
+            } else if (villainAhead && isKnownBoard && boardCards.length < 5 && villainCards.length === 2) {
+                const ourChance = outsPct + tieOutsPct * 0.5;
+                if (ourChance > 30) {
+                    tip = '⚠️ <strong>Ты позади, но есть шансы.</strong> Коллируй с хорошими шансами банка.';
+                    borderColor = '#f59e0b';
+                } else if (ourChance > 15) {
+                    tip = '❌ <strong>Ты серьёзно позади.</strong> Только очень выгодные шансы.';
+                    borderColor = '#dc2626';
+                } else {
+                    tip = '❌ <strong>Ты безнадёжно позади.</strong> Лучше сбросить.';
+                    borderColor = '#dc2626';
+                }
+            } else if (isRangeMode) {
+                const filtered = getFilteredRange();
+                let filterText = '';
+                if (state.blockers.length > 0) {
+                    filterText += '🚫 ' + state.blockers.join(', ');
+                }
+                if (state.filters.length > 0) {
+                    if (filterText) filterText += ' | ';
+                    filterText += '🎯 ' + state.filters.join(', ');
+                }
+                tip =
+                    `📊 <strong>Диапазон:</strong> ${filtered.size} из ${state.rangeHands.size} рук${filterText ? ' (' + filterText + ')' : ''}`;
+                borderColor = '#8b5cf6';
+            } else if (!isKnownBoard) {
+                tip = `🔄 <strong>Симуляция бордов</strong> (${wins + ties + losses})`;
+                borderColor = '#4b3a6a';
+            } else {
+                tip = '💡 <strong>Выбери карты и нажми "Рассчитать"</strong>';
+            }
+
+            updatePotOdds();
+
+            const potOddsText = document.getElementById('potOddsPercent').textContent;
+            const potOdds = parseFloat(potOddsText);
+            const required = parseFloat(document.getElementById('requiredEquity').textContent) || 0;
+
+            const verdictEl = document.getElementById('resultTip');
+
+            let comparePct = winPct;
+            if (villainCards.length === 2 && isKnownBoard && boardCards.length >= 3 && boardCards.length < 5 && totalWinOuts >
+                0) {
+                comparePct = outsPct;
+            }
+
+            if (heroAhead && isKnownBoard && boardCards.length < 5 && villainCards.length === 2) {
+                verdictEl.style.borderLeftColor = '#16a34a';
+                const villainChance = outsPct + tieOutsPct * 0.5;
+                const minBetPercent = Math.ceil(villainChance + 5);
+                const pot = parseInt(document.getElementById('potSize').value) || 100;
+                const recommendedBet = Math.round(pot * minBetPercent / 100);
+                verdictEl.innerHTML =
+                    `🔥 <strong>ТЫ ВПЕРЕДИ!</strong> Твоя рука сильнее.<br>Рекомендуемая ставка: <strong>от ${minBetPercent}% банка (≈${recommendedBet})</strong>`;
+            } else if (!isNaN(potOdds) && potOdds > 0 && !isNaN(comparePct) && comparePct > 0) {
+                let verdict = '';
+                let emoji = '';
+
+                if (comparePct >= required) {
+                    const edge = (comparePct - required);
+                    if (edge > 10) { emoji = '✅';
+                        verdict = 'ОТЛИЧНЫЙ КОЛЛ! Ты значительно впереди.';
+                        borderColor = '#16a34a'; } else if (edge > 3) { emoji = '✅';
+                        verdict = 'Хороший колл. У тебя есть преимущество.';
+                        borderColor = '#16a34a'; } else { emoji = '⚠️';
+                        verdict = 'Пограничный колл. Шансы почти равны.';
+                        borderColor = '#f59e0b'; }
+                } else {
+                    const deficit = (required - comparePct);
+                    if (deficit > 10) { emoji = '❌';
+                        verdict = 'ПЛОХОЙ КОЛЛ! Ты сильно позади. Лучше сбросить.';
+                        borderColor = '#dc2626'; } else if (deficit > 3) { emoji = '⚠️';
+                        verdict = 'Слабый колл. Ты немного позади.';
+                        borderColor = '#f59e0b'; } else { emoji = '⚠️';
+                        verdict = 'Пограничный колл. Шансы почти равны.';
+                        borderColor = '#f59e0b'; }
+                }
+
+                const pctDisplay = villainCards.length === 2 && isKnownBoard && boardCards.length >= 3 && boardCards
+                    .length < 5 && totalWinOuts > 0 ?
+                    `ауты: ${comparePct.toFixed(1)}%` :
+                    `шансы: ${comparePct.toFixed(1)}%`;
+
+                verdictEl.style.borderLeftColor = borderColor;
+                verdictEl.innerHTML =
+                    `${emoji} <strong>${verdict}</strong><br>Твои ${pctDisplay} | Требуется: <strong>${required.toFixed(1)}%</strong>`;
+            } else {
+                verdictEl.style.borderLeftColor = borderColor;
+                verdictEl.innerHTML = `💡 ${tip}`;
+            }
+        }
+
+        function getSuitCombos(type) {
+            if (type === 'pair') {
+                const combos = [];
+                for (let i = 0; i < SUITS.length; i++) {
+                    for (let j = i + 1; j < SUITS.length; j++) {
+                        combos.push([SUITS[i], SUITS[j]]);
+                    }
+                }
+                return combos;
+            } else if (type === 'suited') {
+                return SUITS.map(s => [s, s]);
+            } else {
+                const combos = [];
+                for (let i = 0; i < SUITS.length; i++) {
+                    for (let j = 0; j < SUITS.length; j++) {
+                        if (i !== j) combos.push([SUITS[i], SUITS[j]]);
+                    }
+                }
+                return combos;
+            }
+        }
+
+        function combinations(n, k) {
+            if (k > n) return 0;
+            let result = 1;
+            for (let i = 0; i < k; i++) {
+                result *= (n - i);
+                result /= (i + 1);
+            }
+            return Math.round(result);
+        }
+
+        function updatePotOdds() {
+            const pot = parseInt(document.getElementById('potSize').value) || 0;
+            const bet = parseInt(document.getElementById('betSize').value) || 0;
+            const call = bet;
+
+            if (pot === 0 && bet === 0) {
+                document.getElementById('potOddsPercent').textContent = '—';
+                document.getElementById('requiredEquity').textContent = '—';
+                return;
+            }
+
+            const totalPot = pot + bet + call;
+            const potOdds = (call / totalPot) * 100;
+
+            document.getElementById('potOddsPercent').textContent = potOdds.toFixed(1);
+
+            const requiredEquity = (call / (pot + bet + call)) * 100;
+            document.getElementById('requiredEquity').textContent = requiredEquity.toFixed(1);
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+
+        document.getElementById('potSize').addEventListener('input', updatePotOdds);
+        document.getElementById('betSize').addEventListener('input', updatePotOdds);
+
+        renderAllCards();
+        updateModeIndicator();
+        updatePotOdds();
+
+        console.log('♠️ Покерный калькулятор загружен!');
+        console.log('✅ Адаптировано для мобильных устройств');
+        console.log('✅ Сетка диапазонов компактная и читаемая');
+        console.log('✅ Все функции сохранены');
+    </script>
+</body>
+</html>
